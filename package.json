@@ -1,0 +1,24 @@
+{
+  "name": "hamt-utils",
+  "version": "0.0.0-dev",
+  "description": "Utilities for creating and accessing HAMTs",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "standard",
+    "build": "npm_config_yes=true npx ipjs@latest build --tests",
+    "publish": "npm_config_yes=true npx ipjs@latest publish",
+    "test": "estest test/test-*.js"
+  },
+  "keywords": [],
+  "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
+  "license": "(Apache-2.0 AND MIT)",
+  "dependencies": {
+    "iamap": "mikeal/iamap#uint8array",
+    "murmurhash3js-revisited": "^3.0.0"
+  },
+  "devDependencies": {
+    "estest": "^10.3.5",
+    "@ipld/block": "^6.0.3"
+  }
+}
