@@ -99,7 +99,7 @@ const from = async function * (Block, map) {
     const cid = await block.cid()
     if (seen.has(cid.toString())) return
     seen.add(cid.toString())
-    for (const link of block.reader().links()) {
+    for (const [,link] of block.reader().links()) {
       yield * traverse(await get(link))
     }
     yield block
