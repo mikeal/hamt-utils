@@ -85,6 +85,7 @@ const from = async function * (Block, map) {
   const blocks = {}
   blocks[head.toString()] = headBlock
   const get = async cid => {
+    if (!blocks[cid.toString()]) throw new Error('not found')
     return blocks[cid.toString()]
   }
   const opts = Object.entries(map).map(([key, val]) => ({ set: { key, val } }))
