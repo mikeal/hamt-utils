@@ -85,8 +85,7 @@ const from = async function * (Block, map) {
   const blocks = {}
   blocks[head.toString()] = headBlock
   const get = async cid => {
-    if (!blocks[cid.toString()]) throw new Error('not found')
-    return blocks[cid.toString()]
+    return blocks[cid.toString()] || null
   }
   const opts = Object.entries(map).map(([key, val]) => ({ set: { key, val } }))
   let last
@@ -101,7 +100,9 @@ const from = async function * (Block, map) {
     if (seen.has(cid.toString())) return
     seen.add(cid.toString())
     for (const [,link] of block.reader().links()) {
-      yield * traverse(await get(link))
+      const b = await get(link)
+      if (!b) continue
+      yield * traverse(b)
     }
     yield block
   }
