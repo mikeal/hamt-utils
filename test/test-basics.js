@@ -16,13 +16,16 @@ const store = () => {
   return { get, put }
 }
 
-const compare = async (map, head, get) => {
+const compare = async (map, head, get, count) => {
   const c = {}
+  let seen = 0
   for await (let { key, value } of hamt.all(await head, get)) {
     key = (new TextDecoder()).decode(key)
     c[key] = value
+    seen += 1
   }
   same(map, c)
+  same(seen, count)
 }
 
 export default test => {
@@ -34,6 +37,6 @@ export default test => {
       head = block
       await put(block)
     }
-    await compare(map, head.cid, get)
+    await compare(map, head.cid, get, 2)
   })
 }

@@ -23,10 +23,12 @@ const store = { isEqual, isLink }
 
 export default ({ codec, hasher }) => {
   const transaction = async function * (head, ops, get) {
-    const blocks = []
+    const blocks = {}
+    let last
     const save = async value => {
       const block = await encode({ value, codec, hasher })
-      blocks.push(block)
+      blocks[block.cid.toString()] = block
+      last = block
       return block.cid
     }
 
@@ -45,7 +47,20 @@ export default ({ codec, hasher }) => {
     }
     // would be great to have a hamt API that took bulk operations
     // and was async iterable
-    yield * blocks
+
+    const seen = new Set()
+    const traverse = async function * (block) {
+      const { cid } = block
+      if (seen.has(cid.toString())) return
+      seen.add(cid.toString())
+      for (const [, link] of block.links()) {
+        const b = await get(link)
+        if (!b) continue
+        yield * traverse(b)
+      }
+      yield block
+    }
+    yield * traverse(last)
   }
 
   const fixture = { save: noop, load: noop, ...store }
@@ -90,24 +105,7 @@ export default ({ codec, hasher }) => {
       return blocks[cid.toString()] || null
     }
     const opts = Object.entries(map).map(([key, val]) => ({ set: { key, val } }))
-    let last
-    for await (const block of bulk(head, opts, get)) {
-      blocks[block.cid.toString()] = block
-      last = block
-    }
-    const seen = new Set()
-    const traverse = async function * (block) {
-      const { cid } = block
-      if (seen.has(cid.toString())) return
-      seen.add(cid.toString())
-      for (const [, link] of block.links()) {
-        const b = await get(link)
-        if (!b) continue
-        yield * traverse(b)
-      }
-      yield block
-    }
-    yield * traverse(last)
+    yield * bulk(head, opts, get)
   }
 
   return { all, bulk, empty, get, _store, _noop, has, from }
