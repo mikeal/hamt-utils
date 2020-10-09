@@ -1,6 +1,9 @@
-import * as hamt from '../index.js'
-import Block from '@ipld/block/defaults'
+import create from '../index.js'
+import * as codec from '@ipld/dag-cbor'
+import { sha256 as hasher } from 'multiformats/hashes/sha2'
 import { deepStrictEqual as same } from 'assert'
+
+const hamt = create({ codec, hasher })
 
 const store = () => {
   const blocks = {}
@@ -8,8 +11,7 @@ const store = () => {
     return blocks[cid.toString()]
   }
   const put = async block => {
-    const cid = await block.cid()
-    blocks[cid.toString()] = block
+    blocks[block.cid.toString()] = block
   }
   return { get, put }
 }
@@ -28,10 +30,10 @@ export default test => {
     const { get, put } = store()
     const map = { hello: 'world', world: 'hello' }
     let head
-    for await (const block of hamt.from(Block, map)) {
+    for await (const block of hamt.from(map)) {
       head = block
       await put(block)
     }
-    await compare(map, await head.cid(), get)
+    await compare(map, head.cid, get)
   })
 }

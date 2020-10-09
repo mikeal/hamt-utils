@@ -8,17 +8,19 @@
     "lint": "standard",
     "build": "npm_config_yes=true npx ipjs@latest build --tests",
     "publish": "npm_config_yes=true npx ipjs@latest publish",
-    "test": "estest test/test-*.js"
+    "test": "npm run lint && estest test/test-*.js"
   },
   "keywords": [],
   "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (https://www.mikealrogers.com/)",
   "license": "(Apache-2.0 AND MIT)",
   "dependencies": {
     "iamap": "mikeal/iamap#uint8array",
+    "multiformats": "^4.1.0",
     "murmurhash3js-revisited": "^3.0.0"
   },
   "devDependencies": {
+    "@ipld/dag-cbor": "^2.0.2",
     "estest": "^10.3.5",
-    "@ipld/block": "^6.0.3"
+    "standard": "^14.3.4"
   }
 }
